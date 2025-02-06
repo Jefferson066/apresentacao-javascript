@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciamento de Pessoas</title>
+</head>
+<body>
+    <h1>Cadastro de Pessoas</h1>
+
+    <h2>Adicionar Pessoa</h2>
+    <input type="text" id="nome" placeholder="Nome">
+    <input type="number" id="idade" placeholder="Idade">
+    <button onclick="criarPessoa()">Adicionar</button>
+
+    <h2>Lista de Pessoas</h2>
+    <button onclick="listarPessoas()">Atualizar Lista</button>
+    <ul id="lista-pessoas"></ul>
+
+    <h2>Remover Pessoa</h2>
+    <input type="number" id="id-remover" placeholder="ID">
+    <button onclick="removerPessoa()">Remover</button>
+
+    <script>
+        const apiUrl = 'http://localhost:3000/pessoas';
+
+        async function criarPessoa() {
+            const nome = document.getElementById('nome').value;
+            const idade = document.getElementById('idade').value;
+            
+            if (!nome || !idade) {
+                alert("Preencha todos os campos!");
+                return;
+            }
+
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nome, idade: Number(idade) })
+            });
+
+            if (response.ok) {
+                alert("Pessoa adicionada!");
+                listarPessoas(); 
+            } else {
+                alert("Erro ao adicionar pessoa");
+            }
+        }
+
+        async function listarPessoas() {
+            const response = await fetch(apiUrl);
+            const pessoas = await response.json();
+            const lista = document.getElementById('lista-pessoas');
+            lista.innerHTML = ''; 
+            
+            pessoas.forEach(pessoa => {
+                const li = document.createElement('li');
+                li.textContent = `ID: ${pessoa.id} | Nome: ${pessoa.nome} | Idade: ${pessoa.idade}`;
+                lista.appendChild(li);
+            });
+        }
+
+        async function removerPessoa() {
+            const id = document.getElementById('id-remover').value;
+            if (!id) {
+                alert("Informe um ID para remover!");
+                return;
+            }
+
+            const response = await fetch(`${apiUrl}/${id}`, {
+                method: 'DELETE'
+            });
+
+            if (response.ok) {
+                alert("Pessoa removida!");
+                listarPessoas();
+            } else {
+                alert("Erro ao remover pessoa");
+            }
+        }
+
+        listarPessoas(); // Carrega a lista ao abrir a página
+    </script>
+</body>
+</html>
