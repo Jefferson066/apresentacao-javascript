@@ -14,6 +14,9 @@ app.post('/pessoas', (req, res) => {
   const { nome, idade } = req.body
   const id = pessoas.length + 1
   const pessoa = { id, nome, idade }
+  if(idade < 0) {
+    return res.status(404).json({ error: 'Idade negativa' })
+  }
   pessoas.push(pessoa)
   res.status(201).json(pessoa)
 })
@@ -32,12 +35,16 @@ app.get('/pessoas', (req, res) => {
 
 // Remover pessoa por ID
 app.delete('/pessoas/:id', (req, res) => {
-  const index = pessoas.findIndex((p) => p.id == req.params.id)
-  if (index === -1)
-    return res.status(404).json({ error: 'Pessoa não encontrada' })
-  pessoas.splice(index, 1)
-  res.status(204).send()
-})
+  const id = parseInt(req.params.id);
+  const index = pessoas.findIndex(p => p.id === id);
+
+  if (index === -1) {
+      return res.status(404).json({ error: "Pessoa não encontrada" });
+  }
+
+  pessoas.splice(index, 1);
+  res.status(200).json({ message: "Pessoa removida com sucesso" }); // Retorna uma resposta JSON válida
+});
 
 app.listen(port, () => {
   console.log(`Servidor rodando em http://localhost:${port}`)

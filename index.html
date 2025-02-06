@@ -1,16 +1,16 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Gerenciamento de Pessoas</title>
-</head>
-<body>
+  </head>
+  <body>
     <h1>Cadastro de Pessoas</h1>
 
     <h2>Adicionar Pessoa</h2>
-    <input type="text" id="nome" placeholder="Nome">
-    <input type="number" id="idade" placeholder="Idade">
+    <input type="text" id="nome" placeholder="Nome" />
+    <input type="number" id="idade" placeholder="Idade" />
     <button onclick="criarPessoa()">Adicionar</button>
 
     <h2>Lista de Pessoas</h2>
@@ -18,68 +18,81 @@
     <ul id="lista-pessoas"></ul>
 
     <h2>Remover Pessoa</h2>
-    <input type="number" id="id-remover" placeholder="ID">
+    <input type="number" id="id-remover" placeholder="ID" />
     <button onclick="removerPessoa()">Remover</button>
 
     <script>
-        const apiUrl = 'http://localhost:3000/pessoas';
+      const apiUrl = 'http://localhost:3000/pessoas'
 
-        async function criarPessoa() {
-            const nome = document.getElementById('nome').value;
-            const idade = document.getElementById('idade').value;
-            
-            if (!nome || !idade) {
-                alert("Preencha todos os campos!");
-                return;
-            }
+      async function criarPessoa() {
+        const nome = document.getElementById('nome').value
+        const idade = document.getElementById('idade').value
 
-            const response = await fetch(apiUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ nome, idade: Number(idade) })
-            });
-
-            if (response.ok) {
-                alert("Pessoa adicionada!");
-                listarPessoas(); 
-            } else {
-                alert("Erro ao adicionar pessoa");
-            }
+        if (!nome || !idade) {
+          alert('Preencha todos os campos!')
+          return
         }
 
-        async function listarPessoas() {
-            const response = await fetch(apiUrl);
-            const pessoas = await response.json();
-            const lista = document.getElementById('lista-pessoas');
-            lista.innerHTML = ''; 
-            
-            pessoas.forEach(pessoa => {
-                const li = document.createElement('li');
-                li.textContent = `ID: ${pessoa.id} | Nome: ${pessoa.nome} | Idade: ${pessoa.idade}`;
-                lista.appendChild(li);
-            });
+        try {
+          const response = await fetch('http://localhost:3000/pessoas', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ nome, idade: Number(idade) }),
+          })
+
+          const data = await response.json() // Captura a resposta do backend
+
+          if (!response.ok) {
+            throw new Error(data.error || 'Erro ao adicionar pessoa')
+          }
+
+          alert('Pessoa adicionada com sucesso!')
+          listarPessoas()
+        } catch (error) {
+          alert(error.message) // Mostra o erro específico retornado pela API
+        }
+      }
+
+      async function listarPessoas() {
+        const response = await fetch(apiUrl)
+        const pessoas = await response.json()
+        const lista = document.getElementById('lista-pessoas')
+        lista.innerHTML = ''
+
+        pessoas.forEach((pessoa) => {
+          const li = document.createElement('li')
+          li.textContent = `ID: ${pessoa.id} | Nome: ${pessoa.nome} | Idade: ${pessoa.idade}`
+          lista.appendChild(li)
+        })
+      }
+
+      async function removerPessoa() {
+        const id = document.getElementById('id-remover').value
+
+        if (!id) {
+          alert('Informe um ID para remover!')
+          return
         }
 
-        async function removerPessoa() {
-            const id = document.getElementById('id-remover').value;
-            if (!id) {
-                alert("Informe um ID para remover!");
-                return;
-            }
+        try {
+          const response = await fetch(`http://localhost:3000/pessoas/${id}`, {
+            method: 'DELETE',
+          })
 
-            const response = await fetch(`${apiUrl}/${id}`, {
-                method: 'DELETE'
-            });
+          const data = await response.json().catch(() => ({})) // Evita erro caso a resposta seja vazia
 
-            if (response.ok) {
-                alert("Pessoa removida!");
-                listarPessoas();
-            } else {
-                alert("Erro ao remover pessoa");
-            }
+          if (!response.ok) {
+            throw new Error(data.error || 'Erro ao remover pessoa')
+          }
+
+          alert('Pessoa removida com sucesso!')
+          listarPessoas()
+        } catch (error) {
+          alert(error.message) // Mostra a mensagem de erro específica da API
         }
+      }
 
-        listarPessoas(); // Carrega a lista ao abrir a página
+      listarPessoas() // Carrega a lista ao abrir a página
     </script>
-</body>
+  </body>
 </html>
