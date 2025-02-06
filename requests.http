@@ -1,0 +1,17 @@
+### Criar uma pessoa (POST)
+POST http://localhost:3000/pessoas
+Content-Type: application/json
+
+{
+    "nome": "maria",
+    "idade": 25
+}
+
+### Listar todas as pessoas (GET)
+GET http://localhost:3000/pessoas
+
+### Recuperar uma pessoa por ID (GET)
+GET http://localhost:3000/pessoas/23
+
+### Remover uma pessoa por ID (DELETE)
+DELETE http://localhost:3000/pessoas/1
